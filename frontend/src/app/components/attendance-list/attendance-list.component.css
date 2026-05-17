@@ -1,48 +1,144 @@
-.attendance-list-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.attendance-page {
   min-height: 100vh;
+  background: #f5f5f5;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.header {
-  text-align: center;
-  color: white;
-  margin-bottom: 30px;
+/* ========== NAVBAR ========== */
+.attendance-navbar {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  padding: 0 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.header h1 {
-  font-size: 2.5rem;
-  margin-bottom: 10px;
+.nav-brand {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: white;
+}
+
+.nav-brand i {
+  font-size: 1.8rem;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 5px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 15px 20px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  transition: all 0.3s;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.nav-link.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
   gap: 15px;
 }
 
-.header .icon {
-  font-size: 2rem;
+.user-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.btn-logout {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+  font-size: 0.9rem;
+}
+
+.btn-logout:hover {
+  background: #d32f2f;
+  transform: translateY(-2px);
+}
+
+/* ========== CONTENU PRINCIPAL ========== */
+.attendance-content {
+  padding: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.attendance-list-container {
+  background: white;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* En-tête */
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.header h1 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #333;
 }
 
 .header p {
-  font-size: 1.1rem;
-  opacity: 0.9;
+  margin: 10px 0 0;
+  color: #666;
 }
 
+/* Filtres */
 .filters-card {
-  background: white;
+  background: #f8f9fa;
   border-radius: 15px;
-  padding: 25px;
+  padding: 20px;
   margin-bottom: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 15px;
   align-items: flex-end;
 }
 
@@ -55,8 +151,13 @@
   display: block;
   margin-bottom: 5px;
   font-weight: 600;
-  color: #333;
-  font-size: 0.9rem;
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.filter-group label i {
+  margin-right: 5px;
+  color: #667eea;
 }
 
 .filter-group input {
@@ -66,11 +167,13 @@
   border-radius: 8px;
   font-size: 0.95rem;
   transition: all 0.3s;
+  box-sizing: border-box;
 }
 
 .filter-group input:focus {
   outline: none;
   border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .filter-group.search {
@@ -84,6 +187,9 @@
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-reset {
@@ -106,36 +212,43 @@
   transform: translateY(-2px);
 }
 
+/* Statistiques */
 .stats-summary {
-  background: white;
-  border-radius: 10px;
-  padding: 15px 25px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  padding: 15px 20px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .stat {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 10px;
+  color: white;
+}
+
+.stat i {
+  font-size: 1.2rem;
 }
 
 .stat-label {
-  font-weight: 600;
-  color: #666;
+  font-weight: 500;
+  opacity: 0.9;
 }
 
 .stat-value {
-  font-size: 1.5rem;
   font-weight: bold;
-  color: #667eea;
+  font-size: 1.1rem;
 }
 
+/* Tableau */
 .table-container {
-  background: white;
   border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 .table-responsive {
@@ -154,6 +267,11 @@
   font-weight: 600;
   color: #555;
   border-bottom: 2px solid #e0e0e0;
+}
+
+.attendance-table th i {
+  margin-right: 5px;
+  color: #667eea;
 }
 
 .attendance-table td {
@@ -181,7 +299,9 @@
 }
 
 .status-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 0.85rem;
@@ -202,9 +322,9 @@
   text-align: center;
 }
 
-.empty-state .icon {
+.empty-state i {
   font-size: 3rem;
-  display: block;
+  color: #ccc;
   margin-bottom: 10px;
 }
 
@@ -218,6 +338,7 @@
   color: #999;
 }
 
+/* Loading spinner */
 .loading-spinner {
   text-align: center;
   padding: 50px;
@@ -240,45 +361,50 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .attendance-navbar {
+    flex-direction: column;
+    padding: 10px;
+  }
+  
+  .nav-menu {
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 10px 0;
+  }
+  
+  .nav-user {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .attendance-content {
+    padding: 15px;
+  }
+  
   .attendance-list-container {
-    padding: 20px;
+    padding: 15px;
   }
-
-  .header h1 {
-    font-size: 1.5rem;
-  }
-
+  
   .filters {
     flex-direction: column;
   }
-
+  
   .filter-group {
     width: 100%;
   }
-
+  
   .btn-reset, .btn-export {
     width: 100%;
+    justify-content: center;
   }
-
+  
+  .stats-summary {
+    flex-direction: column;
+  }
+  
   .attendance-table th,
   .attendance-table td {
     padding: 8px;
     font-size: 0.85rem;
   }
-}
-/* Ajouter à la fin du fichier existant */
-.btn-refresh {
-  background: #2196F3;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s;
-}
-
-.btn-refresh:hover {
-  background: #0b7dda;
-  transform: translateY(-2px);
 }

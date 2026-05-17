@@ -1,30 +1,29 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { NotificationService } from './services/notification.service';
-import { DialogService } from './services/dialog.service';
-import { StudentDialogComponent } from './components/student-dialog/student-dialog.component';
+import { StudentPresenceService } from '../../../services/student-presence.service';
+import { NotificationService } from '../../../services/notification.service';
+import { DialogService } from '../../../services/dialog.service';
+import { StudentDialogComponent } from '../../student-dialog/student-dialog.component';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  selector: 'app-student-presence',
+  templateUrl: './student-presence.component.html',
+  styleUrls: ['./student-presence.component.css']
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class StudentPresenceComponent implements OnInit, OnDestroy {
   @ViewChild('studentDialog') studentDialog!: StudentDialogComponent;
   
   studentName: string = '';
   studentId: string = '';
+  isLoading: boolean = false;
   hasCheckedIn: boolean = false;
   checkInTime: string = '';
-  isLoading: boolean = false;
   currentTime: string = '';
   private clockInterval: any;
-  private apiUrl = 'http://localhost:5000/api';
 
   constructor(
-    private http: HttpClient,
     private router: Router,
+    private presenceService: StudentPresenceService,
     private notificationService: NotificationService,
     private dialogService: DialogService
   ) {}
@@ -42,9 +41,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async loadStudentFromStorage(): Promise<void> {
-    const saved = localStorage.getItem('currentStudent');
-    if (saved) {
-      const student = JSON.parse(saved);
+    const savedStudent = localStorage.getItem('currentStudent');
+    if (savedStudent) {
+      const student = JSON.parse(savedStudent);
       this.studentName = student.name;
       this.studentId = student.id;
       this.checkTodayStatus();
@@ -54,17 +53,16 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   saveStudentToStorage(): void {
-    localStorage.setItem('currentStudent', JSON.stringify({ 
-      id: this.studentId, 
-      name: this.studentName 
+    localStorage.setItem('currentStudent', JSON.stringify({
+      id: this.studentId,
+      name: this.studentName
     }));
   }
 
-  // ✅ CORRIGÉ : result n'a que la propriété 'id'
+  // 🔄 MODIFIÉ : Récupère automatiquement le nom depuis l'ID
   async askForStudentIdentity(): Promise<void> {
     const result = await this.studentDialog.open();
     
-    // Vérifier uniquement l'id (plus de name)
     if (result && result.id) {
       // Afficher un chargement
       this.notificationService.showInfo('Recherche', `Recherche de l'étudiant avec l'ID: ${result.id}...`);
@@ -96,10 +94,10 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  // 🆕 Méthode pour récupérer le nom depuis le backend
+  // 🆕 NOUVELLE MÉTHODE : Récupère le nom de l'étudiant depuis le backend
   async getStudentNameById(studentId: string): Promise<string | null> {
     return new Promise((resolve) => {
-      this.http.get(`${this.apiUrl}/students`).subscribe({
+      this.presenceService.getStudents().subscribe({
         next: (data: any) => {
           const student = data.students.find(
             (s: any) => s.student_id === studentId
@@ -126,7 +124,7 @@ export class AppComponent implements OnInit, OnDestroy {
   checkTodayStatus(): void {
     if (!this.studentId) return;
     
-    this.http.get(`${this.apiUrl}/attendance/today`).subscribe({
+    this.presenceService.checkTodayPresence(this.studentId).subscribe({
       next: (data: any) => {
         const todayRecord = data.records.find(
           (r: any) => r.student_id === this.studentId
@@ -138,9 +136,8 @@ export class AppComponent implements OnInit, OnDestroy {
           this.hasCheckedIn = false;
         }
       },
-      error: (err) => {
-        console.error(err);
-        this.notificationService.showError('Erreur', 'Impossible de vérifier le statut');
+      error: (error) => {
+        console.error('Erreur:', error);
       }
     });
   }
@@ -175,7 +172,7 @@ export class AppComponent implements OnInit, OnDestroy {
       'Regardez la caméra pour valider votre présence...'
     );
 
-    this.http.post(`${this.apiUrl}/start-recognition`, {}).subscribe({
+    this.presenceService.startRecognition().subscribe({
       next: () => {
         setTimeout(() => {
           this.checkTodayStatus();
@@ -183,7 +180,7 @@ export class AppComponent implements OnInit, OnDestroy {
           
           if (this.hasCheckedIn) {
             this.notificationService.showSuccess(
-              '✅ Présence enregistrée !',
+              'Présence enregistrée !',
               `Votre présence a été validée à ${this.checkInTime}`
             );
           } else {
@@ -194,8 +191,8 @@ export class AppComponent implements OnInit, OnDestroy {
           }
         }, 4000);
       },
-      error: (err) => {
-        console.error(err);
+      error: (error) => {
+        console.error('Erreur:', error);
         this.notificationService.showError(
           'Erreur',
           'Impossible de démarrer la reconnaissance. Vérifiez que le backend est démarré.'
@@ -205,8 +202,8 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  async changeStudent(): Promise<void> {
-    await this.askForStudentIdentity();
+  changeStudent(): void {
+    this.askForStudentIdentity();
   }
 
   goToAdmin(): void {

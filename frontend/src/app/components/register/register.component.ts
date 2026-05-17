@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AttendanceService } from '../../services/attendance.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
@@ -9,7 +10,7 @@ import { Student } from '../../models/student';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   student: Student = {
     student_id: '',
     name: '',
@@ -17,19 +18,35 @@ export class RegisterComponent {
   };
   
   isLoading: boolean = false;
+  totalStudents: number = 0;
 
   constructor(
+    private router: Router,
     private attendanceService: AttendanceService,
     private notificationService: NotificationService,
     private dialogService: DialogService
-  ) { }
+  ) {}
+
+  ngOnInit(): void {
+    this.loadTotalStudents();
+  }
+
+  loadTotalStudents(): void {
+    this.attendanceService.getStudents().subscribe({
+      next: (data) => {
+        this.totalStudents = data.students.length;
+      },
+      error: (error) => {
+        console.error('Erreur:', error);
+      }
+    });
+  }
 
   async register(): Promise<void> {
     if (!this.validateForm()) {
       return;
     }
 
-    // Dialogue de confirmation
     const confirmed = await this.dialogService.confirm({
       title: 'Confirmation d\'enregistrement',
       message: `Êtes-vous sûr de vouloir enregistrer l'étudiant "${this.student.name}" ?\n\nLa webcam va s'ouvrir pour capturer son visage.`,
@@ -51,9 +68,10 @@ export class RegisterComponent {
           this.notificationService.showSuccess(
             'Succès !',
             `L'étudiant ${this.student.name} a été enregistré avec succès. Regardez la caméra pour capturer son visage.`,
-            4000
+            5000
           );
           this.resetForm();
+          this.loadTotalStudents();
         } else {
           this.notificationService.showError(
             'Erreur',
@@ -99,4 +117,20 @@ export class RegisterComponent {
       class_name: ''
     };
   }
+
+logout(): void {
+  this.dialogService.confirm({
+    title: 'Déconnexion',
+    message: 'Êtes-vous sûr de vouloir vous déconnecter ?',
+    confirmText: 'Oui',
+    cancelText: 'Non',
+    type: 'warning'
+  }).then((confirmed: boolean) => {
+    if (confirmed) {
+      localStorage.removeItem('isAdmin');
+      this.router.navigate(['/admin/login']);
+      this.notificationService.showSuccess('Déconnecté', 'À bientôt !');
+    }
+  });
+}
 }

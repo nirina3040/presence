@@ -1,119 +1,201 @@
 <div class="dashboard-container">
-  <!-- En-tête -->
-  <div class="header">
-    <h1>
-      <i class="bi bi-camera-fill"></i>
-      Système de Reconnaissance Faciale
-    </h1>
-    <p class="subtitle">Gestion automatique des présences étudiantes</p>
-  </div>
-
-  <!-- Boutons d'action -->
-  <div class="actions">
-    <button class="btn btn-primary" (click)="startRecognition()" [disabled]="recognitionActive">
-      <i class="bi bi-play-circle-fill"></i>
-      {{ recognitionActive ? 'Reconnaissance en cours...' : 'Démarrer Reconnaissance' }}
-    </button>
-    
-    <div class="date-picker">
-      <input type="date" [(ngModel)]="selectedDate" (change)="onDateChange()">
-      <button class="btn btn-secondary" (click)="downloadReport()">
-        <i class="bi bi-file-pdf-fill"></i>
-        Télécharger PDF
-      </button>
-      <button class="btn btn-refresh" (click)="refresh()">
-        <i class="bi bi-arrow-repeat"></i>
-        Actualiser
-      </button>
+  <!-- Barre de navigation interne -->
+  <div class="dashboard-navbar">
+    <div class="nav-brand">
+      <i class="bi bi-camera-reels-fill"></i>
+      <span>FaceAttendance Admin</span>
     </div>
-  </div>
-
-  <!-- Cartes statistiques -->
-  <div class="stats-grid">
-    <div class="stat-card total">
-      <div class="stat-icon">
-        <i class="bi bi-people-fill"></i>
-      </div>
-      <div class="stat-info">
-        <h3>Total Étudiants</h3>
-        <p class="stat-number">{{ totalStudents }}</p>
-      </div>
+    <div class="nav-menu">
+      <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+      </a>
+      <a routerLink="/admin/register" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-person-plus"></i>
+        Enregistrement
+      </a>
+      <a routerLink="/admin/attendance" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-list-check"></i>
+        Présences
+      </a>
+      <a routerLink="/admin/reports" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-file-text"></i>
+        Rapports
+      </a>
     </div>
-
-    <div class="stat-card present">
-      <div class="stat-icon">
-        <i class="bi bi-check-circle-fill"></i>
-      </div>
-      <div class="stat-info">
-        <h3>Présents</h3>
-        <p class="stat-number">{{ presentCount }}</p>
-      </div>
-    </div>
-
-    <div class="stat-card absent">
-      <div class="stat-icon">
-        <i class="bi bi-x-circle-fill"></i>
-      </div>
-      <div class="stat-info">
-        <h3>Absents</h3>
-        <p class="stat-number">{{ absentCount }}</p>
-      </div>
-    </div>
-
-    <div class="stat-card rate">
-      <div class="stat-icon">
-        <i class="bi bi-graph-up"></i>
-      </div>
-      <div class="stat-info">
-        <h3>Taux Présence</h3>
-        <p class="stat-number">{{ attendanceRate | number:'1.1-1' }}%</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tableau des présences -->
-  <div class="attendance-section">
-    <div class="section-header">
-      <h2>
-        <i class="bi bi-calendar-check-fill"></i>
-        Présences du {{ todayDate | date:'dd/MM/yyyy' }}
-      </h2>
-      <span class="badge">
-        <i class="bi bi-person-check-fill"></i>
-        {{ todayAttendance.length }} enregistrement(s)
+    <div class="nav-user">
+      <span class="user-name">
+        <i class="bi bi-person-circle"></i>
+        Administrateur
       </span>
+      <button class="btn-logout" (click)="logout()">
+        <i class="bi bi-box-arrow-right"></i>
+        Déconnexion
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== ONGLETS ========== -->
+  <div class="tabs-container">
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'presences'" 
+      (click)="activeTab = 'presences'">
+      <i class="bi bi-calendar-check"></i>
+      Présences du jour
+      <span class="tab-badge">{{ todayAttendance.length }}</span>
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'etudiants'" 
+      (click)="activeTab = 'etudiants'">
+      <i class="bi bi-people"></i>
+      Liste des étudiants
+      <span class="tab-badge">{{ studentsList.length }}</span>
+    </button>
+  </div>
+
+  <!-- ========== CONTENU PRÉSENCES ========== -->
+  <div class="tab-content" *ngIf="activeTab === 'presences'">
+    <!-- Boutons d'action -->
+    <div class="actions">
+      <button class="btn btn-primary" (click)="startRecognition()" [disabled]="recognitionActive">
+        <i class="bi bi-play-circle-fill"></i>
+        {{ recognitionActive ? 'Reconnaissance en cours...' : 'Démarrer Reconnaissance' }}
+      </button>
+
+      <div class="date-picker">
+        <input type="date" [(ngModel)]="selectedDate" (change)="onDateChange()">
+        <button class="btn btn-secondary" (click)="downloadReport()">
+          <i class="bi bi-file-pdf-fill"></i>
+          Télécharger PDF
+        </button>
+        <button class="btn btn-refresh" (click)="refresh()">
+          <i class="bi bi-arrow-repeat"></i>
+          Actualiser
+        </button>
+      </div>
     </div>
 
-    <!-- Tableau -->
-    <div class="table-responsive">
-      <table class="attendance-table">
+    <!-- Tableau des présences -->
+    <div class="attendance-section">
+      <div class="section-header">
+        <h2>
+          <i class="bi bi-calendar-check-fill"></i>
+          Présences du {{ todayDate | date:'dd/MM/yyyy' }}
+        </h2>
+        <span class="badge">
+          <i class="bi bi-person-check-fill"></i>
+          {{ todayAttendance.length }} enregistrement(s)
+        </span>
+      </div>
+
+      <div class="loading-spinner" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <p>Chargement...</p>
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoading">
+        <table class="attendance-table">
+          <thead>
+            <tr>
+              <th><i class="bi bi-hash"></i> #</th>
+              <th><i class="bi bi-person-badge"></i> ID Étudiant</th>
+              <th><i class="bi bi-person"></i> Nom Complet</th>
+              <th><i class="bi bi-clock"></i> Heure d'arrivée</th>
+              <th><i class="bi bi-check-circle"></i> Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let record of todayAttendance; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td class="student-id">{{ record.student_id }}</td>
+              <td class="student-name">{{ record.name }}</td>
+              <td class="time">{{ record.time }}</td>
+              <td>
+                <span class="status-badge present">
+                  <i class="bi bi-check-circle-fill"></i> Présent
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="todayAttendance.length === 0">
+              <td colspan="5" class="empty-row">
+                <div class="empty-state">
+                  <i class="bi bi-inbox-fill"></i>
+                  <p>Aucune présence enregistrée aujourd'hui</p>
+                  <small>Démarrez la reconnaissance faciale pour enregistrer les présences</small>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== CONTENU LISTE ÉTUDIANTS ========== -->
+  <div class="tab-content" *ngIf="activeTab === 'etudiants'">
+    <div class="students-header">
+      <h2>
+        <i class="bi bi-people-fill"></i>
+        Liste des étudiants enregistrés
+      </h2>
+      <button class="btn-add" routerLink="/admin/register">
+        <i class="bi bi-person-plus"></i>
+        Ajouter un étudiant
+      </button>
+    </div>
+
+    <!-- Filtre recherche -->
+    <div class="search-filter">
+      <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input type="text" [(ngModel)]="studentSearchTerm" (input)="filterStudents()"
+          placeholder="Rechercher par ID ou nom...">
+      </div>
+      <div class="stats-info">
+        <i class="bi bi-info-circle"></i>
+        {{ filteredStudents.length }} étudiant(s) trouvé(s)
+      </div>
+    </div>
+
+    <div class="loading-spinner" *ngIf="isLoadingStudents">
+      <div class="spinner"></div>
+      <p>Chargement des étudiants...</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="!isLoadingStudents">
+      <table class="students-table">
         <thead>
           <tr>
             <th><i class="bi bi-hash"></i> #</th>
             <th><i class="bi bi-person-badge"></i> ID Étudiant</th>
             <th><i class="bi bi-person"></i> Nom Complet</th>
-            <th><i class="bi bi-clock"></i> Heure d'arrivée</th>
-            <th><i class="bi bi-check-circle"></i> Statut</th>
+            <th><i class="bi bi-book"></i> Classe</th>
+            <th><i class="bi bi-calendar"></i> Date d'enregistrement</th>
+            <th><i class="bi bi-trash"></i> Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let record of todayAttendance; let i = index">
+          <tr *ngFor="let student of filteredStudents; let i = index">
             <td>{{ i + 1 }}</td>
-            <td class="student-id">{{ record.student_id }}</td>
-            <td class="student-name">{{ record.name }}</td>
-            <td class="time">{{ record.time }}</td>
+            <td class="student-id">{{ student.student_id }}</td>
+            <td class="student-name">{{ student.name }}</td>
+            <td>{{ student.class_name }}</td>
+            <td>{{ student.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
             <td>
-              <span class="status-badge present">
-                <i class="bi bi-check-circle-fill"></i> Présent
-              </span>
+              <button class="btn-delete" (click)="deleteStudent(student.student_id, student.name)">
+                <i class="bi bi-trash-fill"></i>
+                Supprimer
+              </button>
             </td>
           </tr>
-          <tr *ngIf="todayAttendance.length === 0">
-            <td colspan="5" class="empty-row">
+          <tr *ngIf="filteredStudents.length === 0">
+            <td colspan="6" class="empty-row">
               <div class="empty-state">
                 <i class="bi bi-inbox-fill"></i>
-                <p>Aucune présence enregistrée aujourd'hui</p>
-                <small>Démarrez la reconnaissance faciale pour enregistrer les présences</small>
+                <p>Aucun étudiant enregistré</p>
+                <small>Cliquez sur "Ajouter un étudiant" pour enregistrer un nouvel étudiant</small>
               </div>
             </td>
           </tr>

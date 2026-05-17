@@ -1,73 +1,137 @@
-<div class="reports-container">
-  <div class="reports-header">
-    <h1>
-      <span class="icon">📊</span>
-      Rapports de Présence
-    </h1>
-    <p>Générez et téléchargez des rapports détaillés</p>
+<div class="reports-page">
+  <!-- Navbar intégrée -->
+  <div class="reports-navbar">
+    <div class="nav-brand">
+      <i class="bi bi-camera-reels-fill"></i>
+      <span>FaceAttendance Admin</span>
+    </div>
+    <div class="nav-menu">
+      <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+      </a>
+      <a routerLink="/admin/register" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-person-plus"></i>
+        Enregistrement
+      </a>
+      <a routerLink="/admin/attendance" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-list-check"></i>
+        Présences
+      </a>
+      <a routerLink="/admin/reports" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-file-text"></i>
+        Rapports
+      </a>
+    </div>
+    <div class="nav-user">
+      <span class="user-name">
+        <i class="bi bi-person-circle"></i>
+        Administrateur
+      </span>
+      <button class="btn-logout" (click)="logout()">
+        <i class="bi bi-box-arrow-right"></i>
+        Déconnexion
+      </button>
+    </div>
   </div>
 
+  <!-- Contenu principal -->
   <div class="reports-content">
-    <div class="report-card">
-      <div class="report-type-selector">
-        <button 
-          [class.active]="reportType === 'daily'" 
-          (click)="reportType = 'daily'">
-          📅 Rapport Quotidien
-        </button>
-        <button 
-          [class.active]="reportType === 'monthly'" 
-          (click)="reportType = 'monthly'">
-          📆 Rapport Mensuel
-        </button>
+    <div class="reports-container">
+      <div class="reports-header">
+        <h1>
+          <i class="bi bi-file-text-fill"></i>
+          Rapports de Présence
+        </h1>
+        <p>Générez et téléchargez des rapports détaillés</p>
       </div>
 
-      <div class="report-form" *ngIf="reportType === 'daily'">
-        <h3>Sélectionnez une date</h3>
-        <div class="date-input-group">
-          <input type="date" [(ngModel)]="selectedDate">
-          <div class="quick-buttons">
-            <button (click)="setToday()" class="btn-quick">Aujourd'hui</button>
-            <button (click)="setYesterday()" class="btn-quick">Hier</button>
+      <div class="reports-wrapper">
+        <div class="report-card">
+          <div class="report-type-selector">
+            <button 
+              [class.active]="reportType === 'daily'" 
+              (click)="reportType = 'daily'">
+              <i class="bi bi-calendar-day"></i>
+              Rapport Quotidien
+            </button>
+            <button 
+              [class.active]="reportType === 'monthly'" 
+              (click)="reportType = 'monthly'">
+              <i class="bi bi-calendar-month"></i>
+              Rapport Mensuel
+            </button>
+          </div>
+
+          <div class="report-form" *ngIf="reportType === 'daily'">
+            <h3>
+              <i class="bi bi-calendar"></i>
+              Sélectionnez une date
+            </h3>
+            <div class="date-input-group">
+              <input type="date" [(ngModel)]="selectedDate">
+              <div class="quick-buttons">
+                <button (click)="setToday()" class="btn-quick">
+                  <i class="bi bi-sun"></i> Aujourd'hui
+                </button>
+                <button (click)="setYesterday()" class="btn-quick">
+                  <i class="bi bi-moon"></i> Hier
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-form" *ngIf="reportType === 'monthly'">
+            <h3>
+              <i class="bi bi-calendar-month"></i>
+              Sélectionnez un mois
+            </h3>
+            <div class="date-range">
+              <input type="month" [(ngModel)]="selectedMonth">
+            </div>
+          </div>
+
+          <button 
+            class="btn-generate" 
+            (click)="generateReport()" 
+            [disabled]="isLoading">
+            <i class="bi bi-file-pdf-fill"></i>
+            {{ isLoading ? 'Génération en cours...' : 'Générer le rapport PDF' }}
+          </button>
+
+          <div class="report-info">
+            <i class="bi bi-info-circle-fill"></i>
+            <div class="info-text">
+              <strong>Contenu du rapport :</strong><br>
+              • Liste des étudiants présents<br>
+              • Statistiques de présence (présents/absents)<br>
+              • Taux de présence calculé automatiquement<br>
+              • Horaires d'arrivée détaillés<br>
+              • Format PDF professionnel
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="report-form" *ngIf="reportType === 'monthly'">
-        <h3>Sélectionnez une période</h3>
-        <div class="date-range">
-          <input type="month" [(ngModel)]="startDate" placeholder="Mois">
+        <div class="preview-card">
+          <h3>
+            <i class="bi bi-eye"></i>
+            Aperçu du rapport
+          </h3>
+          <div class="preview-placeholder" *ngIf="!lastGeneratedReport">
+            <i class="bi bi-file-earmark-pdf"></i>
+            <p>Cliquez sur "Générer" pour créer votre rapport</p>
+          </div>
+          <div class="preview-success" *ngIf="lastGeneratedReport">
+            <i class="bi bi-check-circle-fill"></i>
+            <p>Rapport généré avec succès !</p>
+            <small>{{ lastGeneratedReport }}</small>
+            <button class="btn-download" (click)="downloadLastReport()">
+              <i class="bi bi-download"></i>
+              Télécharger
+            </button>
+          </div>
         </div>
-      </div>
-
-      <button 
-        class="btn-generate" 
-        (click)="generateReport()" 
-        [disabled]="isLoading">
-        <span class="btn-icon">📄</span>
-        {{ isLoading ? 'Génération en cours...' : 'Générer le rapport PDF' }}
-      </button>
-
-            <div class="report-info">
-        <div class="info-icon">ℹ️</div>
-        <div class="info-text">
-          <strong>Contenu du rapport :</strong><br>
-          • Liste des étudiants présents<br>
-          • Statistiques de présence (présents/absents)<br>
-          • Taux de présence calculé automatiquement<br>
-          • Horaires d'arrivée détaillés<br>
-          • Format PDF professionnel
-        </div>
-      </div>
-    </div>
-
-    <div class="preview-card" *ngIf="false">
-      <h3>Aperçu du rapport</h3>
-      <div class="preview-placeholder">
-        <span class="preview-icon">📄</span>
-        <p>Cliquez sur "Générer" pour créer votre rapport</p>
       </div>
     </div>
   </div>
 </div>
-     

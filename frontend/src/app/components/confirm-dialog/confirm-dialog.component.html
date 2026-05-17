@@ -1,10 +1,11 @@
-<div class="dialog-overlay" *ngIf="isVisible" (click)="cancel()">
-  <div class="dialog-container" [class]="options.type" (click)="$event.stopPropagation()">
+<div class="dialog-overlay" *ngIf="isVisible" (click)="cancel()" (keyup.escape)="onEscape()">
+  <div class="dialog-container" [class]="getDialogClass()" (click)="$event.stopPropagation()">
     <div class="dialog-header" [style.borderBottomColor]="getIconColor()">
       <div class="dialog-icon" [style.backgroundColor]="getIconColor()">
         {{ getIcon() }}
       </div>
       <h2>{{ options.title }}</h2>
+      <button class="dialog-close" (click)="cancel()">×</button>
     </div>
     
     <div class="dialog-body">
@@ -12,7 +13,7 @@
     </div>
     
     <div class="dialog-footer">
-      <button class="btn-cancel" (click)="cancel()">
+      <button class="btn-cancel" *ngIf="options.cancelText" (click)="cancel()">
         {{ options.cancelText }}
       </button>
       <button class="btn-confirm" [class]="options.type" (click)="confirm()">

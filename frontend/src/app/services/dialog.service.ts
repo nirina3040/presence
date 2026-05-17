@@ -19,7 +19,30 @@ export class DialogService {
 
   confirm(options: DialogOptions): Promise<boolean> {
     return new Promise((resolve) => {
-      this.dialogSubject.next({ ...options, resolve });
+      this.dialogSubject.next({ 
+        ...options,
+        confirmText: options.confirmText || 'Confirmer',
+        cancelText: options.cancelText || 'Annuler',
+        type: options.type || 'info',
+        resolve 
+      });
+    });
+  }
+
+  // Méthode utilitaire pour les alertes simples
+  alert(message: string, title: string = 'Information'): Promise<void> {
+    return new Promise((resolve) => {
+      this.dialogSubject.next({
+        title,
+        message,
+        confirmText: 'OK',
+        cancelText: '',
+        type: 'info',
+        resolve: (value: boolean) => {
+          resolve();
+          return value;
+        }
+      });
     });
   }
 

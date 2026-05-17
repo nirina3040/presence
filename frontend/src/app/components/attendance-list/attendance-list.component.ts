@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+
 import { AttendanceService } from '../../services/attendance.service';
 import { NotificationService } from '../../services/notification.service';
+import { DialogService } from '../../services/dialog.service';
 import { Attendance } from '../../models/attendance';
 
 @Component({
@@ -17,29 +20,31 @@ export class AttendanceListComponent implements OnInit {
   isLoading: boolean = false;
 
   constructor(
+    private router: Router,
     private attendanceService: AttendanceService,
-    private notificationService: NotificationService
-  ) { }
+    private notificationService: NotificationService,
+    private dialogService: DialogService
+  ) {}
 
   ngOnInit(): void {
     this.loadTodayAttendance();
   }
 
-  // Charger les présences du jour
+  // Charger les présences du jour par défaut
   loadTodayAttendance(): void {
     this.isLoading = true;
     this.attendanceService.getTodayAttendance().subscribe({
       next: (data: any) => {
         this.attendances = data.records || [];
         this.filteredAttendances = [...this.attendances];
+        this.isLoading = false;
         
         if (this.attendances.length === 0) {
           this.notificationService.showInfo(
-            'Aucune présence', 
-            'Aucune présence enregistrée aujourd\'hui. Lancez la reconnaissance faciale pour commencer.'
+            'Aucune donnée',
+            'Aucune présence enregistrée pour le moment'
           );
         }
-        this.isLoading = false;
       },
       error: (error: any) => {
         console.error('Erreur:', error);
@@ -50,21 +55,16 @@ export class AttendanceListComponent implements OnInit {
   }
 
   // Charger les présences par date sélectionnée
-  loadAttendanceByDate(): void {
-    if (!this.startDate) {
-      this.loadTodayAttendance();
-      return;
-    }
-    
+  loadAttendanceByDate(date: string): void {
     this.isLoading = true;
-    this.attendanceService.getAttendanceByDate(this.startDate).subscribe({
+    this.attendanceService.getAttendanceByDate(date).subscribe({
       next: (data: any) => {
         this.attendances = data.records || [];
         this.filteredAttendances = [...this.attendances];
         this.isLoading = false;
         
         if (this.attendances.length === 0) {
-          this.notificationService.showInfo('Aucune présence', `Aucune présence pour le ${this.startDate}`);
+          this.notificationService.showInfo('Aucune présence', `Aucune présence pour le ${date}`);
         }
       },
       error: (error: any) => {
@@ -104,7 +104,9 @@ export class AttendanceListComponent implements OnInit {
     }
 
     const term = this.searchTerm.toLowerCase();
-    this.filteredAttendances = this.attendances.filter((attendance: Attendance) => 
+    const dateFiltered = [...this.attendances];
+    
+    this.filteredAttendances = dateFiltered.filter((attendance: Attendance) => 
       attendance.name.toLowerCase().includes(term) ||
       attendance.student_id.toLowerCase().includes(term)
     );
@@ -112,21 +114,18 @@ export class AttendanceListComponent implements OnInit {
     this.filterByDate();
   }
 
-  // Recherche en temps réel
   onSearchChange(): void {
     this.filterBySearch();
   }
 
-  // Changement de date
   onDateChange(): void {
     if (this.startDate) {
-      this.loadAttendanceByDate();
+      this.loadAttendanceByDate(this.startDate);
     } else {
       this.filterByDate();
     }
   }
 
-  // Réinitialiser les filtres
   resetFilters(): void {
     this.startDate = '';
     this.endDate = '';
@@ -135,17 +134,6 @@ export class AttendanceListComponent implements OnInit {
     this.notificationService.showInfo('Filtres réinitialisés', 'Affichage des présences du jour');
   }
 
-  // Rafraîchir les données
-  refresh(): void {
-    if (this.startDate) {
-      this.loadAttendanceByDate();
-    } else {
-      this.loadTodayAttendance();
-    }
-    this.notificationService.showInfo('Actualisation', 'Les données ont été actualisées');
-  }
-
-  // Exporter en CSV
   exportToCSV(): void {
     if (this.filteredAttendances.length === 0) {
       this.notificationService.showWarning('Aucune donnée', 'Il n\'y a aucune présence à exporter');
@@ -170,6 +158,25 @@ export class AttendanceListComponent implements OnInit {
     a.click();
     window.URL.revokeObjectURL(url);
     
-    this.notificationService.showSuccess('Export réussi', `${this.filteredAttendances.length} présences exportées en CSV`);
+    this.notificationService.showSuccess(
+      'Export réussi', 
+      `${this.filteredAttendances.length} présences exportées en CSV`
+    );
   }
+
+logout(): void {
+  this.dialogService.confirm({
+    title: 'Déconnexion',
+    message: 'Êtes-vous sûr de vouloir vous déconnecter ?',
+    confirmText: 'Oui',
+    cancelText: 'Non',
+    type: 'warning'
+  }).then((confirmed: boolean) => {
+    if (confirmed) {
+      localStorage.removeItem('isAdmin');
+      this.router.navigate(['/admin/login']);
+      this.notificationService.showSuccess('Déconnecté', 'À bientôt !');
+    }
+  });
+}
 }

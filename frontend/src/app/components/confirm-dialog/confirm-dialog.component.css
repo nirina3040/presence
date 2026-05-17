@@ -176,3 +176,27 @@
     padding: 8px 20px;
   }
 }
+.dialog-header {
+  position: relative;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-bottom: 3px solid;
+}
+
+.dialog-close {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  transition: color 0.2s;
+}
+
+.dialog-close:hover {
+  color: #333;
+}

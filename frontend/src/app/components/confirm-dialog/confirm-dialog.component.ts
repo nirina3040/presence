@@ -48,6 +48,11 @@ export class ConfirmDialogComponent implements OnDestroy {
     this.isVisible = false;
   }
 
+  // Fermer avec la touche Echap
+  onEscape(): void {
+    this.cancel();
+  }
+
   getIcon(): string {
     switch(this.options.type) {
       case 'success': return '✅';
@@ -63,6 +68,16 @@ export class ConfirmDialogComponent implements OnDestroy {
       case 'warning': return '#ff9800';
       case 'danger': return '#f44336';
       default: return '#2196F3';
+    }
+  }
+
+  // Ajout pour le style de la classe CSS
+  getDialogClass(): string {
+    switch(this.options.type) {
+      case 'success': return 'dialog-success';
+      case 'warning': return 'dialog-warning';
+      case 'danger': return 'dialog-danger';
+      default: return 'dialog-info';
     }
   }
 

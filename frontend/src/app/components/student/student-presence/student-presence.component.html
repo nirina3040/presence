@@ -1,0 +1,76 @@
+<div class="presence-simple">
+  <!-- En-tête -->
+  <div class="header">
+    <div class="logo">
+      <i class="bi bi-camera-reels-fill"></i>
+      <h1>FaceAttendance</h1>
+    </div>
+    <p class="subtitle">Système de reconnaissance faciale</p>
+  </div>
+
+  <!-- Horloge -->
+  <div class="clock">
+    <i class="bi bi-clock"></i>
+    <span>{{ currentTime }}</span>
+  </div>
+
+  <!-- Carte étudiante -->
+  <div class="student-card" *ngIf="studentId && studentName">
+    <div class="avatar">
+      <i class="bi bi-person-circle"></i>
+    </div>
+    <h2>{{ studentName }}</h2>
+    <p class="student-id">{{ studentId }}</p>
+    <button class="btn-change" (click)="changeStudent()">
+      <i class="bi bi-arrow-repeat"></i>
+      Changer d'étudiant
+    </button>
+  </div>
+
+  <!-- Chargement -->
+  <div class="loading-card" *ngIf="!studentId || !studentName">
+    <div class="spinner-large"></div>
+    <p>Chargement...</p>
+  </div>
+
+  <!-- Carte présence -->
+  <div class="presence-card" [class.checked]="hasCheckedIn" *ngIf="studentId && studentName">
+    <div class="status-icon">
+      <i [class]="hasCheckedIn ? 'bi bi-check-circle-fill' : 'bi bi-camera-fill'"></i>
+    </div>
+    
+    <div class="status-message" *ngIf="hasCheckedIn">
+      ✅ Présent(e) depuis {{ checkInTime }}
+    </div>
+    
+    <div class="status-message waiting" *ngIf="!hasCheckedIn && !isLoading">
+      ⏰ Bonjour {{ studentName }}, vous n'avez pas encore pointé
+    </div>
+
+    <div class="status-message loading" *ngIf="isLoading">
+      <div class="spinner"></div>
+      🔄 Reconnaissance en cours...
+    </div>
+
+    <button class="btn-pointer" 
+            (click)="startRecognition()" 
+            [disabled]="hasCheckedIn || isLoading">
+      <i class="bi bi-camera-fill"></i>
+      {{ hasCheckedIn ? 'Déjà pointé' : (isLoading ? 'Reconnaissance...' : '📸 POINTER MA PRÉSENCE') }}
+    </button>
+
+    <p class="info" *ngIf="!hasCheckedIn && !isLoading">
+      <i class="bi bi-info-circle"></i>
+      Cliquez sur le bouton et regardez la caméra
+    </p>
+  </div>
+
+  <!-- Lien administration -->
+<div class="admin-link" (click)="goToAdmin()">
+  <i class="bi bi-shield-lock"></i>
+  Administration
+</div>
+
+  <!-- Dialogue étudiant -->
+  <app-student-dialog #studentDialog></app-student-dialog>
+</div>

@@ -1,0 +1,59 @@
+<div class="admin-login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="logo">
+        <i class="bi bi-shield-lock-fill"></i>
+      </div>
+      <h1>Administration</h1>
+      <p>Gestion du système de présence</p>
+    </div>
+
+    <div class="login-body">
+      <div class="form-group">
+        <label>
+          <i class="bi bi-envelope"></i>
+          Email
+        </label>
+        <input 
+          type="email" 
+          [(ngModel)]="email" 
+          placeholder="admin@example.com"
+          (keyup.enter)="login()">
+      </div>
+
+      <div class="form-group password-group">
+        <label>
+          <i class="bi bi-key"></i>
+          Mot de passe
+        </label>
+        <div class="password-input-wrapper">
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            [(ngModel)]="password" 
+            placeholder="••••••••"
+            (keyup.enter)="login()">
+          <button type="button" class="password-toggle" (click)="togglePassword()">
+            <i [class]="showPassword ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill'"></i>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn-login" (click)="login()" [disabled]="isLoading">
+        <i class="bi bi-box-arrow-in-right"></i>
+        {{ isLoading ? 'Connexion...' : 'Se connecter' }}
+      </button>
+
+      <div class="demo-info">
+        <i class="bi bi-info-circle"></i>
+        <strong>Test :</strong> admin&#64;example.com / admin123
+      </div>
+    </div>
+
+    <div class="login-footer">
+      <button class="btn-back" (click)="goBack()">
+        <i class="bi bi-arrow-left"></i>
+        Retour à l'accueil
+      </button>
+    </div>
+  </div>
+</div>

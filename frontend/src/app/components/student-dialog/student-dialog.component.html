@@ -1,0 +1,37 @@
+<div class="dialog-overlay" *ngIf="visible" (click)="close()">
+  <div class="dialog-container" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <div class="dialog-icon">
+        <i class="bi bi-person-badge"></i>
+      </div>
+      <h2>Identification Étudiant</h2>
+      <p>Veuillez entrer votre ID étudiant</p>
+    </div>
+    
+    <div class="dialog-body">
+      <div class="form-group">
+        <label>
+          <i class="bi bi-person-badge"></i>
+          ID Étudiant
+        </label>
+        <input 
+          type="text" 
+          class="student-id-input"
+          [(ngModel)]="studentId" 
+          placeholder="Ex: ETU2024001"
+          (keyup.enter)="confirm()">
+      </div>
+    </div>
+    
+    <div class="dialog-footer">
+      <button class="btn-cancel" (click)="close()">
+        <i class="bi bi-x-lg"></i>
+        Annuler
+      </button>
+      <button class="btn-confirm" (click)="confirm()">
+        <i class="bi bi-check-lg"></i>
+        Valider
+      </button>
+    </div>
+  </div>
+</div>
