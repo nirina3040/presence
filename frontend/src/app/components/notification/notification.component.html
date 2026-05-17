@@ -1,0 +1,23 @@
+<div class="notification-container">
+  <div *ngFor="let notification of notifications" 
+       class="notification" 
+       [class]="notification.type"
+       (click)="removeNotification(notification.id)">
+    <div class="notification-icon">
+      <i *ngIf="notification.type === 'success'" class="bi bi-check-circle-fill"></i>
+      <i *ngIf="notification.type === 'error'" class="bi bi-x-circle-fill"></i>
+      <i *ngIf="notification.type === 'warning'" class="bi bi-exclamation-triangle-fill"></i>
+      <i *ngIf="notification.type === 'info'" class="bi bi-info-circle-fill"></i>
+    </div>
+    <div class="notification-content">
+      <div class="notification-title" [class]="getTitleClass(notification.type)">
+        {{ notification.title }}
+      </div>
+      <div class="notification-message">{{ notification.message }}</div>
+    </div>
+    <div class="notification-close">
+      <i class="bi bi-x-lg"></i>
+    </div>
+    <div class="notification-progress" [style.animation-duration]="(notification.duration || 3000) + 'ms'"></div>
+  </div>
+</div>

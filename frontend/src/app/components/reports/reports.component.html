@@ -1,0 +1,73 @@
+<div class="reports-container">
+  <div class="reports-header">
+    <h1>
+      <span class="icon">📊</span>
+      Rapports de Présence
+    </h1>
+    <p>Générez et téléchargez des rapports détaillés</p>
+  </div>
+
+  <div class="reports-content">
+    <div class="report-card">
+      <div class="report-type-selector">
+        <button 
+          [class.active]="reportType === 'daily'" 
+          (click)="reportType = 'daily'">
+          📅 Rapport Quotidien
+        </button>
+        <button 
+          [class.active]="reportType === 'monthly'" 
+          (click)="reportType = 'monthly'">
+          📆 Rapport Mensuel
+        </button>
+      </div>
+
+      <div class="report-form" *ngIf="reportType === 'daily'">
+        <h3>Sélectionnez une date</h3>
+        <div class="date-input-group">
+          <input type="date" [(ngModel)]="selectedDate">
+          <div class="quick-buttons">
+            <button (click)="setToday()" class="btn-quick">Aujourd'hui</button>
+            <button (click)="setYesterday()" class="btn-quick">Hier</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-form" *ngIf="reportType === 'monthly'">
+        <h3>Sélectionnez une période</h3>
+        <div class="date-range">
+          <input type="month" [(ngModel)]="startDate" placeholder="Mois">
+        </div>
+      </div>
+
+      <button 
+        class="btn-generate" 
+        (click)="generateReport()" 
+        [disabled]="isLoading">
+        <span class="btn-icon">📄</span>
+        {{ isLoading ? 'Génération en cours...' : 'Générer le rapport PDF' }}
+      </button>
+
+            <div class="report-info">
+        <div class="info-icon">ℹ️</div>
+        <div class="info-text">
+          <strong>Contenu du rapport :</strong><br>
+          • Liste des étudiants présents<br>
+          • Statistiques de présence (présents/absents)<br>
+          • Taux de présence calculé automatiquement<br>
+          • Horaires d'arrivée détaillés<br>
+          • Format PDF professionnel
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-card" *ngIf="false">
+      <h3>Aperçu du rapport</h3>
+      <div class="preview-placeholder">
+        <span class="preview-icon">📄</span>
+        <p>Cliquez sur "Générer" pour créer votre rapport</p>
+      </div>
+    </div>
+  </div>
+</div>
+     

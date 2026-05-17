@@ -1,0 +1,124 @@
+<div class="dashboard-container">
+  <!-- En-tête -->
+  <div class="header">
+    <h1>
+      <i class="bi bi-camera-fill"></i>
+      Système de Reconnaissance Faciale
+    </h1>
+    <p class="subtitle">Gestion automatique des présences étudiantes</p>
+  </div>
+
+  <!-- Boutons d'action -->
+  <div class="actions">
+    <button class="btn btn-primary" (click)="startRecognition()" [disabled]="recognitionActive">
+      <i class="bi bi-play-circle-fill"></i>
+      {{ recognitionActive ? 'Reconnaissance en cours...' : 'Démarrer Reconnaissance' }}
+    </button>
+    
+    <div class="date-picker">
+      <input type="date" [(ngModel)]="selectedDate" (change)="onDateChange()">
+      <button class="btn btn-secondary" (click)="downloadReport()">
+        <i class="bi bi-file-pdf-fill"></i>
+        Télécharger PDF
+      </button>
+      <button class="btn btn-refresh" (click)="refresh()">
+        <i class="bi bi-arrow-repeat"></i>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Cartes statistiques -->
+  <div class="stats-grid">
+    <div class="stat-card total">
+      <div class="stat-icon">
+        <i class="bi bi-people-fill"></i>
+      </div>
+      <div class="stat-info">
+        <h3>Total Étudiants</h3>
+        <p class="stat-number">{{ totalStudents }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card present">
+      <div class="stat-icon">
+        <i class="bi bi-check-circle-fill"></i>
+      </div>
+      <div class="stat-info">
+        <h3>Présents</h3>
+        <p class="stat-number">{{ presentCount }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card absent">
+      <div class="stat-icon">
+        <i class="bi bi-x-circle-fill"></i>
+      </div>
+      <div class="stat-info">
+        <h3>Absents</h3>
+        <p class="stat-number">{{ absentCount }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card rate">
+      <div class="stat-icon">
+        <i class="bi bi-graph-up"></i>
+      </div>
+      <div class="stat-info">
+        <h3>Taux Présence</h3>
+        <p class="stat-number">{{ attendanceRate | number:'1.1-1' }}%</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau des présences -->
+  <div class="attendance-section">
+    <div class="section-header">
+      <h2>
+        <i class="bi bi-calendar-check-fill"></i>
+        Présences du {{ todayDate | date:'dd/MM/yyyy' }}
+      </h2>
+      <span class="badge">
+        <i class="bi bi-person-check-fill"></i>
+        {{ todayAttendance.length }} enregistrement(s)
+      </span>
+    </div>
+
+    <!-- Tableau -->
+    <div class="table-responsive">
+      <table class="attendance-table">
+        <thead>
+          <tr>
+            <th><i class="bi bi-hash"></i> #</th>
+            <th><i class="bi bi-person-badge"></i> ID Étudiant</th>
+            <th><i class="bi bi-person"></i> Nom Complet</th>
+            <th><i class="bi bi-clock"></i> Heure d'arrivée</th>
+            <th><i class="bi bi-check-circle"></i> Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of todayAttendance; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td class="student-id">{{ record.student_id }}</td>
+            <td class="student-name">{{ record.name }}</td>
+            <td class="time">{{ record.time }}</td>
+            <td>
+              <span class="status-badge present">
+                <i class="bi bi-check-circle-fill"></i> Présent
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="todayAttendance.length === 0">
+            <td colspan="5" class="empty-row">
+              <div class="empty-state">
+                <i class="bi bi-inbox-fill"></i>
+                <p>Aucune présence enregistrée aujourd'hui</p>
+                <small>Démarrez la reconnaissance faciale pour enregistrer les présences</small>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+<app-notification></app-notification>
+<app-confirm-dialog></app-confirm-dialog>
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <span class="logo">📸</span>
+    <span>FaceAttendance</span>
+  </div>
+  <div class="nav-menu">
+    <a routerLink="/dashboard" routerLinkActive="active">
+      <span class="nav-icon">📊</span>
+      Dashboard
+    </a>
+    <a routerLink="/register" routerLinkActive="active">
+      <span class="nav-icon">👤</span>
+      Enregistrement
+    </a>
+    <a routerLink="/attendance-list" routerLinkActive="active">
+      <span class="nav-icon">📋</span>
+      Présences
+    </a>
+    <a routerLink="/reports" routerLinkActive="active">
+      <span class="nav-icon">📄</span>
+      Rapports
+    </a>
+  </div>
+</nav>
+
+<div class="content">
+  <router-outlet></router-outlet>
+</div>
