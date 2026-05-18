@@ -659,3 +659,273 @@
   background: #d32f2f;
   transform: translateY(-1px);
 }
+/* Ajouter dans dashboard.component.css */
+
+/* Filtres row */
+.filters-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-class {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  padding: 8px 15px;
+  border-radius: 40px;
+  border: 1px solid #e0e0e0;
+}
+
+.filter-class i {
+  color: #667eea;
+}
+
+.filter-class select {
+  border: none;
+  background: none;
+  padding: 5px;
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.search-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  padding: 8px 15px;
+  border-radius: 40px;
+  border: 1px solid #e0e0e0;
+}
+
+.search-box i {
+  color: #999;
+}
+
+.search-box input {
+  flex: 1;
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.stats-info {
+  background: #e3f2fd;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-view {
+  background: #2196F3;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-view:hover {
+  background: #0b7dda;
+  transform: translateY(-2px);
+}
+
+.btn-delete {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-delete:hover {
+  background: #d32f2f;
+  transform: translateY(-2px);
+}
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.total .stat-icon { background: #e8eaf6; color: #667eea; }
+.present .stat-icon { background: #e8f5e9; color: #4CAF50; }
+.absent .stat-icon { background: #ffebee; color: #f44336; }
+.rate .stat-icon { background: #fff3e0; color: #ff9800; }
+
+.stat-info h3 {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.stat-number {
+  margin: 5px 0 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.total .stat-number { color: #667eea; }
+.present .stat-number { color: #4CAF50; }
+.absent .stat-number { color: #f44336; }
+.rate .stat-number { color: #ff9800; }
+/* Ajouter dans dashboard.component.css */
+
+/* Style pour la colonne photo */
+.photo-cell {
+  width: 60px;
+  text-align: center;
+}
+
+.student-photo {
+  width: 45px;
+  height: 45px;
+  margin: 0 auto;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #667eea;
+  background: #f5f5f5;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.8rem;
+}
+
+.avatar-placeholder i {
+  font-size: 1.8rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Ajustement du tableau */
+.students-table th,
+.students-table td {
+  vertical-align: middle;
+  padding: 12px 8px;
+}
+
+.students-table .student-id {
+  font-weight: 600;
+  color: #667eea;
+  font-family: monospace;
+}
+
+.students-table .student-name {
+  font-weight: 500;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-view, .btn-delete {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-view {
+  background: #2196F3;
+  color: white;
+}
+
+.btn-view:hover {
+  background: #0b7dda;
+  transform: translateY(-2px);
+}
+
+.btn-delete {
+  background: #f44336;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #d32f2f;
+  transform: translateY(-2px);
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+  .photo-cell {
+    width: 45px;
+  }
+  
+  .student-photo {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .avatar-placeholder i {
+    font-size: 1.2rem;
+  }
+  
+  .btn-view, .btn-delete {
+    padding: 4px 8px;
+  }
+}

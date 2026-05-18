@@ -4,6 +4,7 @@ import { AttendanceService } from '../../services/attendance.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
 import { Attendance } from '../../models/attendance';
+import { Student } from '../../models/student';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,6 +14,9 @@ import { Attendance } from '../../models/attendance';
 export class DashboardComponent implements OnInit {
   // Onglets
   activeTab: 'presences' | 'etudiants' = 'presences';
+  selectedClass: string = '';
+  classesList: string[] = [];
+  selectedStudent: Student | null = null;
   
   // Présences
   todayAttendance: Attendance[] = [];
@@ -24,10 +28,10 @@ export class DashboardComponent implements OnInit {
   todayDate: string = this.selectedDate;
   isLoading: boolean = false;
   recognitionActive: boolean = false;
-  
+
   // Étudiants
-  studentsList: any[] = [];
-  filteredStudents: any[] = [];
+  studentsList: Student[] = [];
+  filteredStudents: Student[] = [];
   studentSearchTerm: string = '';
   isLoadingStudents: boolean = false;
 
@@ -36,7 +40,7 @@ export class DashboardComponent implements OnInit {
     private attendanceService: AttendanceService,
     private notificationService: NotificationService,
     private dialogService: DialogService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadTodayAttendance();
@@ -69,6 +73,7 @@ export class DashboardComponent implements OnInit {
         this.filteredStudents = [...this.studentsList];
         this.totalStudents = data.students.length;
         this.calculateStats();
+        this.loadClasses(); // Appeler après chargement des étudiants
         this.isLoadingStudents = false;
       },
       error: (error: any) => {
@@ -82,8 +87,8 @@ export class DashboardComponent implements OnInit {
   calculateStats(): void {
     this.presentCount = this.todayAttendance.length;
     this.absentCount = this.totalStudents - this.presentCount;
-    this.attendanceRate = this.totalStudents > 0 
-      ? (this.presentCount / this.totalStudents) * 100 
+    this.attendanceRate = this.totalStudents > 0
+      ? (this.presentCount / this.totalStudents) * 100
       : 0;
   }
 
@@ -136,11 +141,47 @@ export class DashboardComponent implements OnInit {
   // ========== MÉTHODES ÉTUDIANTS ==========
   filterStudents(): void {
     const term = this.studentSearchTerm.toLowerCase();
-    this.filteredStudents = this.studentsList.filter((student: any) => 
+    this.filteredStudents = this.studentsList.filter((student: Student) =>
       student.student_id.toLowerCase().includes(term) ||
       student.name.toLowerCase().includes(term) ||
       (student.class_name && student.class_name.toLowerCase().includes(term))
     );
+  }
+
+  loadClasses(): void {
+    this.classesList = [...new Set(this.studentsList.map(s => s.class_name))];
+  }
+
+  filterByClass(): void {
+    if (this.selectedClass) {
+      this.filteredStudents = this.studentsList.filter(
+        s => s.class_name === this.selectedClass
+      );
+    } else {
+      this.filteredStudents = [...this.studentsList];
+    }
+  }
+
+  viewDetails(student: Student): void {
+    this.selectedStudent = student;
+  }
+
+  saveStudentDetails(updatedStudent: Student): void {
+    this.attendanceService.updateStudent(updatedStudent).subscribe({
+      next: () => {
+        this.loadStudents();
+        this.selectedStudent = null;
+        this.notificationService.showSuccess('Succès', 'Étudiant modifié avec succès');
+      },
+      error: (error: any) => {
+        console.error('Erreur:', error);
+        this.notificationService.showError('Erreur', 'Impossible de modifier l\'étudiant');
+      }
+    });
+  }
+
+  closeDetail(): void {
+    this.selectedStudent = null;
   }
 
   async deleteStudent(studentId: string, studentName: string): Promise<void> {
@@ -153,10 +194,16 @@ export class DashboardComponent implements OnInit {
     });
 
     if (confirmed) {
-      // Appel API pour supprimer (à adapter selon votre backend)
-      this.notificationService.showSuccess('Supprimé', `L'étudiant ${studentName} a été supprimé`);
-      // Recharger la liste
-      this.loadStudents();
+      this.attendanceService.deleteStudent(studentId).subscribe({
+        next: () => {
+          this.notificationService.showSuccess('Supprimé', `L'étudiant ${studentName} a été supprimé`);
+          this.loadStudents();
+        },
+        error: (error: any) => {
+          console.error('Erreur:', error);
+          this.notificationService.showError('Erreur', 'Impossible de supprimer l\'étudiant');
+        }
+      });
     }
   }
 

@@ -1,0 +1,99 @@
+<div class="detail-overlay" *ngIf="student" (click)="closeDialog()">
+  <div class="detail-container" (click)="$event.stopPropagation()">
+    <div class="detail-header">
+      <h2>
+        <i class="bi bi-person-badge"></i>
+        {{ isEditing ? 'Modifier l\'étudiant' : 'Détails de l\'étudiant' }}
+      </h2>
+      <button class="btn-close" (click)="closeDialog()">×</button>
+    </div>
+
+    <div class="detail-body">
+      <!-- Photo -->
+      <div class="photo-section">
+        <div class="photo-avatar">
+          <img *ngIf="photoPreview" [src]="photoPreview" alt="Photo">
+          <i *ngIf="!photoPreview" class="bi bi-person-circle"></i>
+        </div>
+        <div class="photo-actions" *ngIf="isEditing">
+          <label class="btn-photo">
+            <i class="bi bi-camera"></i>
+            Changer la photo
+            <input type="file" accept="image/*" (change)="onPhotoSelected($event)" hidden>
+          </label>
+        </div>
+      </div>
+
+      <!-- Mode Affichage -->
+      <div class="info-group" *ngIf="!isEditing">
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-person-badge"></i> ID :</span>
+          <span class="info-value">{{ student.student_id }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-person"></i> Nom :</span>
+          <span class="info-value">{{ student.name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-book"></i> Classe :</span>
+          <span class="info-value">{{ student.class_name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-envelope"></i> Email :</span>
+          <span class="info-value">{{ student.email || 'Non renseigné' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-telephone"></i> Téléphone :</span>
+          <span class="info-value">{{ student.phone || 'Non renseigné' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-geo-alt"></i> Adresse :</span>
+          <span class="info-value">{{ student.address || 'Non renseigné' }}</span>
+        </div>
+      </div>
+
+      <!-- Mode Édition -->
+      <div class="edit-form" *ngIf="isEditing">
+        <div class="form-group">
+          <label><i class="bi bi-person-badge"></i> ID Étudiant</label>
+          <input type="text" [(ngModel)]="editedStudent.student_id" disabled>
+        </div>
+        <div class="form-group">
+          <label><i class="bi bi-person"></i> Nom Complet *</label>
+          <input type="text" [(ngModel)]="editedStudent.name" placeholder="Nom et prénom">
+        </div>
+        <div class="form-group">
+          <label><i class="bi bi-book"></i> Classe *</label>
+          <input type="text" [(ngModel)]="editedStudent.class_name" placeholder="Ex: Master 1 Info">
+        </div>
+        <div class="form-group">
+          <label><i class="bi bi-envelope"></i> Email</label>
+          <input type="email" [(ngModel)]="editedStudent.email" placeholder="email@exemple.com">
+        </div>
+        <div class="form-group">
+          <label><i class="bi bi-telephone"></i> Téléphone</label>
+          <input type="tel" [(ngModel)]="editedStudent.phone" placeholder="06 12 34 56 78">
+        </div>
+        <div class="form-group">
+          <label><i class="bi bi-geo-alt"></i> Adresse</label>
+          <textarea [(ngModel)]="editedStudent.address" rows="2" placeholder="Adresse complète"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-footer">
+      <button *ngIf="!isEditing" class="btn-edit" (click)="edit()">
+        <i class="bi bi-pencil"></i> Modifier
+      </button>
+      <button *ngIf="isEditing" class="btn-cancel" (click)="cancelEdit()">
+        <i class="bi bi-x-lg"></i> Annuler
+      </button>
+      <button *ngIf="isEditing" class="btn-save" (click)="saveChanges()">
+        <i class="bi bi-check-lg"></i> Enregistrer
+      </button>
+      <button *ngIf="!isEditing" class="btn-close-footer" (click)="closeDialog()">
+        <i class="bi bi-x-lg"></i> Fermer
+      </button>
+    </div>
+  </div>
+</div>

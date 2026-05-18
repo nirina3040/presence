@@ -48,4 +48,18 @@ export class AttendanceService {
   markAttendance(student_id: string, name: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/attendance/mark`, { student_id, name });
   }
+  // Mettre à jour un étudiant
+  updateStudent(student: Student): Observable<any> {
+    return this.http.put(`${this.apiUrl}/students/${student.student_id}`, student);
+  }
+
+  // Supprimer un étudiant
+  deleteStudent(studentId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/students/${studentId}`);
+  }
+
+  // Récupérer les classes
+  getClasses(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/classes`);
+  }
 }

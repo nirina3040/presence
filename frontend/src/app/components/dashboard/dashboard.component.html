@@ -37,18 +37,12 @@
 
   <!-- ========== ONGLETS ========== -->
   <div class="tabs-container">
-    <button 
-      class="tab-btn" 
-      [class.active]="activeTab === 'presences'" 
-      (click)="activeTab = 'presences'">
+    <button class="tab-btn" [class.active]="activeTab === 'presences'" (click)="activeTab = 'presences'">
       <i class="bi bi-calendar-check"></i>
       Présences du jour
       <span class="tab-badge">{{ todayAttendance.length }}</span>
     </button>
-    <button 
-      class="tab-btn" 
-      [class.active]="activeTab === 'etudiants'" 
-      (click)="activeTab = 'etudiants'">
+    <button class="tab-btn" [class.active]="activeTab === 'etudiants'" (click)="activeTab = 'etudiants'">
       <i class="bi bi-people"></i>
       Liste des étudiants
       <span class="tab-badge">{{ studentsList.length }}</span>
@@ -146,17 +140,28 @@
       </button>
     </div>
 
-    <!-- Filtre recherche -->
-    <div class="search-filter">
+    <!-- Filtres -->
+    <div class="filters-row">
+      <!-- Filtre par classe -->
+      <div class="filter-class">
+        <i class="bi bi-funnel"></i>
+        <select [(ngModel)]="selectedClass" (change)="filterByClass()">
+          <option value="">Toutes les classes</option>
+          <option *ngFor="let class of classesList" [value]="class">{{ class }}</option>
+        </select>
+      </div>
+
+      <!-- Recherche -->
       <div class="search-box">
         <i class="bi bi-search"></i>
         <input type="text" [(ngModel)]="studentSearchTerm" (input)="filterStudents()"
-          placeholder="Rechercher par ID ou nom...">
+          placeholder="Rechercher par ID, nom, classe...">
       </div>
-      <div class="stats-info">
-        <i class="bi bi-info-circle"></i>
-        {{ filteredStudents.length }} étudiant(s) trouvé(s)
-      </div>
+    </div>
+
+    <div class="stats-info">
+      <i class="bi bi-info-circle"></i>
+      {{ filteredStudents.length }} étudiant(s) trouvé(s)
     </div>
 
     <div class="loading-spinner" *ngIf="isLoadingStudents">
@@ -168,30 +173,54 @@
       <table class="students-table">
         <thead>
           <tr>
+            <th><i class="bi bi-image"></i> Photo</th>
             <th><i class="bi bi-hash"></i> #</th>
             <th><i class="bi bi-person-badge"></i> ID Étudiant</th>
             <th><i class="bi bi-person"></i> Nom Complet</th>
             <th><i class="bi bi-book"></i> Classe</th>
-            <th><i class="bi bi-calendar"></i> Date d'enregistrement</th>
-            <th><i class="bi bi-trash"></i> Actions</th>
+            <th><i class="bi bi-envelope"></i> Email</th>
+            <th><i class="bi bi-telephone"></i> Téléphone</th>
+            <th><i class="bi bi-calendar"></i> Date</th>
+            <th><i class="bi bi-eye"></i> Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let student of filteredStudents; let i = index">
-            <td>{{ i + 1 }}</td>
+            <!-- Photo avec cercle -->
+            <td class="photo-cell">
+              <div class="student-photo">
+                <img *ngIf="student.photo" [src]="student.photo" alt="Photo" class="avatar-img">
+                <div *ngIf="!student.photo" class="avatar-placeholder">
+                  <i class="bi bi-person-circle"></i>
+                </div>
+              </div>
+            </td>
+            <!-- Numéro -->
+            <td class="text-center">{{ i + 1 }}</td>
+            <!-- ID -->
             <td class="student-id">{{ student.student_id }}</td>
+            <!-- Nom -->
             <td class="student-name">{{ student.name }}</td>
+            <!-- Classe -->
             <td>{{ student.class_name }}</td>
-            <td>{{ student.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
-            <td>
-              <button class="btn-delete" (click)="deleteStudent(student.student_id, student.name)">
+            <!-- Email -->
+            <td>{{ student.email || '-' }}</td>
+            <!-- Téléphone -->
+            <td>{{ student.phone || '-' }}</td>
+            <!-- Date -->
+            <td>{{ student.created_at | date:'dd/MM/yyyy' }}</td>
+            <!-- Actions -->
+            <td class="actions-cell">
+              <button class="btn-view" (click)="viewDetails(student)" title="Voir détails">
+                <i class="bi bi-eye-fill"></i>
+              </button>
+              <button class="btn-delete" (click)="deleteStudent(student.student_id, student.name)" title="Supprimer">
                 <i class="bi bi-trash-fill"></i>
-                Supprimer
               </button>
             </td>
           </tr>
           <tr *ngIf="filteredStudents.length === 0">
-            <td colspan="6" class="empty-row">
+            <td colspan="9" class="empty-row">
               <div class="empty-state">
                 <i class="bi bi-inbox-fill"></i>
                 <p>Aucun étudiant enregistré</p>
@@ -204,3 +233,8 @@
     </div>
   </div>
 </div>
+
+<!-- Modal Détails Étudiant -->
+<app-student-detail *ngIf="selectedStudent" [student]="selectedStudent" (close)="closeDetail()"
+  (save)="saveStudentDetails($event)">
+</app-student-detail>

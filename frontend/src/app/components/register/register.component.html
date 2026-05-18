@@ -50,10 +50,42 @@
 
         <div class="card-body">
           <form (ngSubmit)="register()">
+            <!-- Photo -->
+            <div class="form-group photo-group">
+              <label>
+                <i class="bi bi-camera"></i>
+                Photo d'identité
+              </label>
+              <div class="photo-upload">
+                <div class="photo-preview" *ngIf="photoPreview">
+                  <img [src]="photoPreview" alt="Photo d'identité">
+                  <button type="button" class="btn-remove-photo" (click)="removePhoto()">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+                <div class="photo-placeholder" *ngIf="!photoPreview" (click)="triggerFileInput()">
+                  <i class="bi bi-camera-fill"></i>
+                  <span>Cliquez pour ajouter une photo</span>
+                </div>
+                <input 
+                  type="file" 
+                  #fileInput 
+                  accept="image/jpeg,image/png,image/jpg" 
+                  (change)="onPhotoSelected($event)" 
+                  style="display: none">
+                <button type="button" class="btn-upload" (click)="triggerFileInput()">
+                  <i class="bi bi-upload"></i>
+                  Choisir une photo
+                </button>
+                <small class="photo-hint">Formats acceptés : JPG, PNG (max 2MB)</small>
+              </div>
+            </div>
+
+            <!-- ID Étudiant -->
             <div class="form-group">
               <label for="student_id">
                 <i class="bi bi-person-badge"></i>
-                ID Étudiant
+                ID Étudiant *
               </label>
               <input 
                 type="text" 
@@ -63,16 +95,14 @@
                 placeholder="Ex: ETU2024001"
                 required
                 autocomplete="off">
-              <small>
-                <i class="bi bi-info-circle"></i>
-                Identifiant unique de l'étudiant
-              </small>
+              <small>Identifiant unique de l'étudiant</small>
             </div>
 
+            <!-- Nom Complet -->
             <div class="form-group">
               <label for="name">
                 <i class="bi bi-person"></i>
-                Nom Complet
+                Nom Complet *
               </label>
               <input 
                 type="text" 
@@ -82,16 +112,14 @@
                 placeholder="Ex: Jean Dupont"
                 required
                 autocomplete="off">
-              <small>
-                <i class="bi bi-info-circle"></i>
-                Nom et prénom de l'étudiant
-              </small>
+              <small>Nom et prénom de l'étudiant</small>
             </div>
 
+            <!-- Classe -->
             <div class="form-group">
               <label for="class_name">
                 <i class="bi bi-book"></i>
-                Classe
+                Classe *
               </label>
               <input 
                 type="text" 
@@ -99,12 +127,53 @@
                 [(ngModel)]="student.class_name" 
                 name="class_name"
                 placeholder="Ex: Master 1 Informatique"
-                required
-                autocomplete="off">
-              <small>
-                <i class="bi bi-info-circle"></i>
-                Classe ou filière de l'étudiant
-              </small>
+                required>
+              <small>Classe ou filière de l'étudiant</small>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label for="email">
+                <i class="bi bi-envelope"></i>
+                Email
+              </label>
+              <input 
+                type="email" 
+                id="email"
+                [(ngModel)]="student.email" 
+                name="email"
+                placeholder="jean.dupont@example.com">
+              <small>Adresse email (optionnel)</small>
+            </div>
+
+            <!-- Téléphone -->
+            <div class="form-group">
+              <label for="phone">
+                <i class="bi bi-telephone"></i>
+                Téléphone
+              </label>
+              <input 
+                type="tel" 
+                id="phone"
+                [(ngModel)]="student.phone" 
+                name="phone"
+                placeholder="06 12 34 56 78">
+              <small>Numéro de téléphone (optionnel)</small>
+            </div>
+
+            <!-- Adresse -->
+            <div class="form-group">
+              <label for="address">
+                <i class="bi bi-geo-alt"></i>
+                Adresse
+              </label>
+              <textarea 
+                id="address"
+                [(ngModel)]="student.address" 
+                name="address"
+                rows="2"
+                placeholder="Adresse complète de l'étudiant"></textarea>
+              <small>Adresse (optionnel)</small>
             </div>
 
             <div class="info-box">
@@ -130,10 +199,10 @@
           <h3><i class="bi bi-question-circle"></i> Comment ça marche ?</h3>
           <ol>
             <li>Remplissez les informations de l'étudiant</li>
+            <li>Ajoutez une photo d'identité (optionnel)</li>
             <li>Cliquez sur "Démarrer l'enregistrement"</li>
             <li>Regardez la caméra (30 photos seront prises)</li>
             <li>Le modèle est automatiquement entraîné</li>
-            <li>L'étudiant peut maintenant être reconnu !</li>
           </ol>
         </div>
 
@@ -145,14 +214,6 @@
             <li>Visage bien visible et sans obstacles</li>
             <li>L'ID étudiant doit être unique</li>
           </ul>
-        </div>
-
-        <div class="info-card stats">
-          <h3><i class="bi bi-graph-up"></i> Statistiques</h3>
-          <div class="stat-item">
-            <span>Total étudiants enregistrés</span>
-            <strong>{{ totalStudents }}</strong>
-          </div>
         </div>
       </div>
     </div>

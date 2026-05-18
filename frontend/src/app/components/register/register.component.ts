@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AttendanceService } from '../../services/attendance.service';
 import { NotificationService } from '../../services/notification.service';
@@ -10,15 +10,21 @@ import { Student } from '../../models/student';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
-export class RegisterComponent implements OnInit {
+export class RegisterComponent {
+  @ViewChild('fileInput') fileInput!: ElementRef;
+  
   student: Student = {
     student_id: '',
     name: '',
-    class_name: ''
+    class_name: '',
+    email: '',
+    phone: '',
+    address: '',
+    photo: ''
   };
   
+  photoPreview: string | null = null;
   isLoading: boolean = false;
-  totalStudents: number = 0;
 
   constructor(
     private router: Router,
@@ -27,19 +33,38 @@ export class RegisterComponent implements OnInit {
     private dialogService: DialogService
   ) {}
 
-  ngOnInit(): void {
-    this.loadTotalStudents();
+  triggerFileInput(): void {
+    this.fileInput.nativeElement.click();
   }
 
-  loadTotalStudents(): void {
-    this.attendanceService.getStudents().subscribe({
-      next: (data) => {
-        this.totalStudents = data.students.length;
-      },
-      error: (error) => {
-        console.error('Erreur:', error);
+  onPhotoSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      // Vérifier la taille (2MB max)
+      if (file.size > 2 * 1024 * 1024) {
+        this.notificationService.showWarning('Fichier trop grand', 'La photo ne doit pas dépasser 2MB');
+        return;
       }
-    });
+      
+      // Vérifier le type
+      if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
+        this.notificationService.showWarning('Format non supporté', 'Seuls les formats JPG et PNG sont acceptés');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.photoPreview = e.target.result;
+        this.student.photo = e.target.result; // Stocker en base64
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removePhoto(): void {
+    this.photoPreview = null;
+    this.student.photo = '';
+    this.fileInput.nativeElement.value = '';
   }
 
   async register(): Promise<void> {
@@ -71,7 +96,6 @@ export class RegisterComponent implements OnInit {
             5000
           );
           this.resetForm();
-          this.loadTotalStudents();
         } else {
           this.notificationService.showError(
             'Erreur',
@@ -114,23 +138,31 @@ export class RegisterComponent implements OnInit {
     this.student = {
       student_id: '',
       name: '',
-      class_name: ''
+      class_name: '',
+      email: '',
+      phone: '',
+      address: '',
+      photo: ''
     };
+    this.photoPreview = null;
+    if (this.fileInput) {
+      this.fileInput.nativeElement.value = '';
+    }
   }
 
-logout(): void {
-  this.dialogService.confirm({
-    title: 'Déconnexion',
-    message: 'Êtes-vous sûr de vouloir vous déconnecter ?',
-    confirmText: 'Oui',
-    cancelText: 'Non',
-    type: 'warning'
-  }).then((confirmed: boolean) => {
-    if (confirmed) {
-      localStorage.removeItem('isAdmin');
-      this.router.navigate(['/admin/login']);
-      this.notificationService.showSuccess('Déconnecté', 'À bientôt !');
-    }
-  });
-}
+  logout(): void {
+    this.dialogService.confirm({
+      title: 'Déconnexion',
+      message: 'Êtes-vous sûr de vouloir vous déconnecter ?',
+      confirmText: 'Oui',
+      cancelText: 'Non',
+      type: 'warning'
+    }).then((confirmed: boolean) => {
+      if (confirmed) {
+        localStorage.removeItem('isAdmin');
+        this.router.navigate(['/admin/login']);
+        this.notificationService.showSuccess('Déconnecté', 'À bientôt !');
+      }
+    });
+  }
 }

@@ -16,6 +16,7 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
 import { StudentPresenceComponent } from './components/student/student-presence/student-presence.component';
 import { AdminLoginComponent } from './components/admin-login/admin-login.component';
 import { StudentDialogComponent } from './components/student-dialog/student-dialog.component';
+import { StudentDetailComponent } from './components/student-detail/student-detail.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { StudentDialogComponent } from './components/student-dialog/student-dial
     ConfirmDialogComponent,
     StudentPresenceComponent,
     AdminLoginComponent,
-    StudentDialogComponent
+    StudentDialogComponent,
+    StudentDetailComponent
   ],
   imports: [
     BrowserModule,

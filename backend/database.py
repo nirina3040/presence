@@ -19,14 +19,18 @@ class Database:
         """Crée les tables si elles n'existent pas"""
         cursor = self.conn.cursor()
         
-        # Table étudiants
+        # Table étudiants avec tous les champs
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS students (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 student_id TEXT UNIQUE NOT NULL,
                 name TEXT NOT NULL,
-                face_encoding BLOB,
                 class_name TEXT,
+                email TEXT,
+                phone TEXT,
+                address TEXT,
+                photo TEXT,
+                face_encoding BLOB,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -52,14 +56,16 @@ class Database:
     
     # ========== Méthodes Student ==========
     
-    def add_student(self, student_id, name, face_encoding, class_name):
-        """Ajoute un nouvel étudiant"""
+    def add_student(self, student_id, name, face_encoding, class_name, 
+                    email=None, phone=None, address=None, photo=None):
+        """Ajoute un nouvel étudiant avec tous les champs"""
         try:
             cursor = self.conn.cursor()
-            cursor.execute(
-                "INSERT INTO students (student_id, name, face_encoding, class_name) VALUES (?, ?, ?, ?)",
-                (student_id, name, face_encoding, class_name)
-            )
+            cursor.execute('''
+                INSERT INTO students 
+                (student_id, name, face_encoding, class_name, email, phone, address, photo) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (student_id, name, face_encoding, class_name, email, phone, address, photo))
             self.conn.commit()
             return True
         except sqlite3.IntegrityError:
@@ -76,9 +82,9 @@ class Database:
         return None
     
     def get_all_students(self):
-        """Récupère tous les étudiants"""
+        """Récupère tous les étudiants (sans face_encoding pour performance)"""
         cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM students ORDER BY name")
+        cursor.execute("SELECT id, student_id, name, class_name, email, phone, address, photo, created_at FROM students ORDER BY name")
         rows = cursor.fetchall()
         students = []
         for row in rows:
@@ -86,17 +92,21 @@ class Database:
             student.id = row[0]
             student.student_id = row[1]
             student.name = row[2]
-            student.class_name = row[4]
+            student.class_name = row[3]
+            student.email = row[4] if len(row) > 4 else None
+            student.phone = row[5] if len(row) > 5 else None
+            student.address = row[6] if len(row) > 6 else None
+            student.photo = row[7] if len(row) > 7 else None
             
-            # Gérer la date correctement
-            if len(row) > 5 and row[5]:
-                if isinstance(row[5], str):
+            # Gérer la date (colonne 8)
+            if len(row) > 8 and row[8]:
+                if isinstance(row[8], str):
                     try:
-                        student.created_at = datetime.strptime(row[5], '%Y-%m-%d %H:%M:%S')
+                        student.created_at = datetime.strptime(row[8], '%Y-%m-%d %H:%M:%S')
                     except:
                         student.created_at = datetime.now()
                 else:
-                    student.created_at = row[5]
+                    student.created_at = row[8]
             else:
                 student.created_at = datetime.now()
             
@@ -110,29 +120,48 @@ class Database:
         cursor.execute("SELECT COUNT(*) FROM students")
         return cursor.fetchone()[0]
     
-    def update_student(self, student_id, name=None, class_name=None):
+    def update_student(self, student_id, name=None, class_name=None, 
+                       email=None, phone=None, address=None, photo=None):
         """Met à jour les informations d'un étudiant"""
         cursor = self.conn.cursor()
-        if name and class_name:
-            cursor.execute(
-                "UPDATE students SET name = ?, class_name = ? WHERE student_id = ?",
-                (name, class_name, student_id)
-            )
-        elif name:
-            cursor.execute(
-                "UPDATE students SET name = ? WHERE student_id = ?",
-                (name, student_id)
-            )
-        elif class_name:
-            cursor.execute(
-                "UPDATE students SET class_name = ? WHERE student_id = ?",
-                (class_name, student_id)
-            )
-        self.conn.commit()
+        
+        # Construire la requête dynamiquement
+        updates = []
+        params = []
+        
+        if name is not None:
+            updates.append("name = ?")
+            params.append(name)
+        if class_name is not None:
+            updates.append("class_name = ?")
+            params.append(class_name)
+        if email is not None:
+            updates.append("email = ?")
+            params.append(email)
+        if phone is not None:
+            updates.append("phone = ?")
+            params.append(phone)
+        if address is not None:
+            updates.append("address = ?")
+            params.append(address)
+        if photo is not None:
+            updates.append("photo = ?")
+            params.append(photo)
+        
+        if updates:
+            params.append(student_id)
+            query = f"UPDATE students SET {', '.join(updates)} WHERE student_id = ?"
+            cursor.execute(query, params)
+            self.conn.commit()
+            return True
+        return False
     
     def delete_student(self, student_id):
-        """Supprime un étudiant"""
+        """Supprime un étudiant et ses présences associées"""
         cursor = self.conn.cursor()
+        # Supprimer d'abord les présences (clé étrangère)
+        cursor.execute("DELETE FROM attendance WHERE student_id = ?", (student_id,))
+        # Puis supprimer l'étudiant
         cursor.execute("DELETE FROM students WHERE student_id = ?", (student_id,))
         self.conn.commit()
         return cursor.rowcount > 0
@@ -234,6 +263,37 @@ class Database:
             'month': month,
             'daily_stats': daily_stats
         }
+    
+    def get_classes(self):
+        """Récupère la liste des classes uniques"""
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT DISTINCT class_name FROM students WHERE class_name IS NOT NULL AND class_name != ''")
+        rows = cursor.fetchall()
+        return [row[0] for row in rows]
+    
+    def search_students(self, search_term):
+        """Recherche des étudiants par nom ou ID"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            SELECT * FROM students 
+            WHERE name LIKE ? OR student_id LIKE ? 
+            ORDER BY name
+        ''', (f'%{search_term}%', f'%{search_term}%'))
+        rows = cursor.fetchall()
+        students = []
+        for row in rows:
+            student = Student()
+            student.id = row[0]
+            student.student_id = row[1]
+            student.name = row[2]
+            student.class_name = row[3]
+            student.email = row[4] if len(row) > 4 else None
+            student.phone = row[5] if len(row) > 5 else None
+            student.address = row[6] if len(row) > 6 else None
+            student.photo = row[7] if len(row) > 7 else None
+            student.created_at = row[9] if len(row) > 9 else datetime.now()
+            students.append(student)
+        return students
     
     def close(self):
         """Ferme la connexion à la base de données"""
